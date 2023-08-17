@@ -31,8 +31,9 @@ const AuthForm = () => {
       }
       ).then((res)=>{
         if(res.ok){
-
-        }
+          res.json().then((data)=>{
+          console.log(data.idToken);
+          })}
         else{
           res.json().then((data)=>{
             console.log(data);
@@ -57,7 +58,6 @@ const AuthForm = () => {
     }
     ).then((res)=>{
       if(res.ok){
-
       }
       else{
         res.json().then((data)=>{
