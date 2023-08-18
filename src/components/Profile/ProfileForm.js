@@ -7,7 +7,7 @@ const ProfileForm = () => {
   const history= useHistory();
 const authCtx= useContext(AuthContext);
 const newPasswordInputRef= useRef();
-  const submitHandler=event=>{
+  const submitHandler= (event)=>{
     const enteredNewPassword= newPasswordInputRef.current.value;
 
     fetch('https://identitytoolkit.googleapis.com/v1/accounts:update?key=AIzaSyB0nyXEjeGMujuH-a5fM19cFXHeK1m12IU',
@@ -22,7 +22,7 @@ const newPasswordInputRef= useRef();
         'Content-Type': 'application/json'
       }
     }).then((res)=>{
-      history.replace('/');
+      history.replace('/auth')
     })
   }
   return (
