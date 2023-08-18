@@ -1,73 +1,59 @@
-import { useState, useRef} from 'react';
+import { useState, useRef, useContext} from 'react';
 
 import classes from './AuthForm.module.css';
+import AuthContext from '../../Store/auth-context';
 
 const AuthForm = () => {
   const emailInputRef= useRef('');
   const passwordInputRef= useRef('');
   const [isLogin, setIsLogin] = useState(true);
 
+  const authCtx= useContext(AuthContext);
   const switchAuthModeHandler = () => {
     setIsLogin((prevState) => !prevState);
   };
-  const submitHandler=(event)=>{
+  async function submitHandler(event){
     event.preventDefault();
     const enteredEmail = emailInputRef.current.value;
     const enteredPassword = passwordInputRef.current.value;
 
+    let url;
+
     if(isLogin){
-      fetch(
-        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyB0nyXEjeGMujuH-a5fM19cFXHeK1m12IU',
-      {
-        method:'POST',
-        body: JSON.stringify({
+      url ='https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyB0nyXEjeGMujuH-a5fM19cFXHeK1m12IU'
+    }
+    else{
+      url ='https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyB0nyXEjeGMujuH-a5fM19cFXHeK1m12IU'
+    }
+
+    await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({
           email: enteredEmail,
           password: enteredPassword,
-          returnSecureToken: true
-        }),
-        headers:{
+          returnSecureToken: true,
+      }),
+      headers: {
           'Content-Type': 'application/json'
-        }
+      },
+  }).then((res) => {
+      if (res.ok) {
+          return res.json();
+      } else {
+          return res.json().then((data) => {
+              let errorMessage = "Authenticatiion failed";
+              throw new Error(errorMessage)
+          })
       }
-      ).then((res)=>{
-        if(res.ok){
-          res.json().then((data)=>{
-          console.log(data.idToken);
-          })}
-        else{
-          res.json().then((data)=>{
-            console.log(data);
-            alert('error exists')}
-            );
-          }
-        })
-      }
-    else{
-      fetch(
-        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyB0nyXEjeGMujuH-a5fM19cFXHeK1m12IU',
-        {
-          method:'POST',
-          body: JSON.stringify({
-            email: enteredEmail,
-            password: enteredPassword,
-            returnSecureToken: true
-          }),
-          headers:{
-            'Content-Type': 'application/json'
-          }
-    }
-    ).then((res)=>{
-      if(res.ok){
-      }
-      else{
-        res.json().then((data)=>{
+  })
+      .then((data) => {
           console.log(data);
-          alert('error exists')
-        });
-      }
-    })
-    }
-  }
+          authCtx.login(data.idToken);
+      })
+      .catch((err) => {
+          alert(err.message);
+      })
+}
 
   return (
     <section className={classes.auth}>
