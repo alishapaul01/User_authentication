@@ -50,7 +50,12 @@ const AuthForm = () => {
       .then((data) => {
           
           authCtx.login(data.idToken);
-          history.replace('/');
+          localStorage.setItem('token', data.token)
+          setTimeout(()=>{
+            localStorage.removeItem('token')
+            history.replace('/');
+          }, 300000)
+          
       })
       .catch((err) => {
           alert(err.message);
